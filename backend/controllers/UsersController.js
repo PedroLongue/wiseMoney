@@ -38,11 +38,11 @@ const register = async (req, res) => {
 
   try {
     await user.save();
-    res.status(201).json({ msg: "Usuário criado com sucesso!" });
+    res.status(201).json({ _id: user._id, msg: "Usuário criado com sucesso!" });
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      msg: "Acontecey um erro no servidor, tente novamente mais tarde!",
+      msg: "Aconteceu um erro no servidor, tente novamente mais tarde!",
     });
   }
 };
@@ -73,7 +73,13 @@ const login = async (req, res) => {
       secret
     );
 
-    res.status(200).json({ msg: "Autenticação realizada com sucesso!", token });
+    res
+      .status(200)
+      .json({
+        _id: user._id,
+        msg: "Autenticação realizada com sucesso!",
+        token,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({

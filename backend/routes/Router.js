@@ -1,5 +1,8 @@
 const express = require("express");
 const router = express();
+const jwt = require("jsonwebtoken");
+
+const User = require("../models/User");
 
 router.use("/users/auth", require("./UserRoutes"));
 
@@ -28,10 +31,12 @@ function checkToken(req, res, next) {
 
   try {
     const secret = process.env.secret;
+    console.log(secret)
     jwt.verify(token, secret);
 
     next();
   } catch (error) {
+    console.error(error);
     res.status(400).json({ msg: "Token inválido!" });
   }
 }

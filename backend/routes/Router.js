@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express();
-const jwt = require("jsonwebtoken");
 
 const User = require("../models/User");
 
+const authGuard = require("../middleware/authGuard");
+
 router.use("/users/auth", require("./UserRoutes"));
+router.use("/users", require("./ExpenseRoutes"));
 
 //test
 router.get("/", (req, res) => {
@@ -12,7 +14,7 @@ router.get("/", (req, res) => {
 });
 
 //Private Route
-router.get("/users/:id", checkToken, async (req, res) => {
+router.get("/users/:id", authGuard, async (req, res) => {
   const id = req.params.id;
 
   //check if user exists
@@ -22,23 +24,5 @@ router.get("/users/:id", checkToken, async (req, res) => {
 
   res.status(200).json({ user });
 });
-
-function checkToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (!token) return res.status(401).json({ msg: "Acesso negado!" });
-
-  try {
-    const secret = process.env.secret;
-    console.log(secret)
-    jwt.verify(token, secret);
-
-    next();
-  } catch (error) {
-    console.error(error);
-    res.status(400).json({ msg: "Token inválido!" });
-  }
-}
 
 module.exports = router;

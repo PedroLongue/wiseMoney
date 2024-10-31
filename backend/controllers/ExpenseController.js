@@ -53,9 +53,30 @@ const deleteExpense = async (req, res) => {
       .status(200)
       .json({ id: expense._id, message: "Despesa excluída com sucesso." });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(404).json({ msg: "Despesa não encontrada!" });
   }
 };
 
-module.exports = { expenseEntries, deleteExpense };
+const getUserExpense = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const expenses = await Expense.find({ userId: id }).sort([
+      ["createdAt", -1],
+    ]);
+
+    if (!expenses || expenses.length === 0) {
+      return res
+        .status(404)
+        .json({ msg: "Nenhuma despesa encontrada para este usuário." });
+    }
+
+    return res.status(200).json(expenses);
+  } catch (error) {
+    console.error("Erro ao buscar despesas:", error);
+    return res.status(500).json({ msg: "Erro ao buscar despesas" });
+  }
+};
+
+module.exports = { expenseEntries, deleteExpense, getUserExpense };

@@ -73,13 +73,11 @@ const login = async (req, res) => {
       secret
     );
 
-    res
-      .status(200)
-      .json({
-        _id: user._id,
-        msg: "Autenticação realizada com sucesso!",
-        token,
-      });
+    res.status(200).json({
+      _id: user._id,
+      msg: "Autenticação realizada com sucesso!",
+      token,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -88,7 +86,16 @@ const login = async (req, res) => {
   }
 };
 
+const getCurrentUser = async (req, res) => {
+  if (!req.user) {
+    return res.status(404).json({ msg: "Usuário não encontrado." });
+  }
+
+  res.status(200).json(req.user);
+};
+
 module.exports = {
   login,
   register,
+  getCurrentUser,
 };

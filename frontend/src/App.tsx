@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Regsiter from "./pages/Register";
 import Home from "./pages/Home";
+import './global.css'
 
 function App() {
   return (

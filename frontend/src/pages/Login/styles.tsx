@@ -1,9 +1,8 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  background: #2e623e;
-  width: 100vw;
-  height: 100vh;
+  background: #101813;
+  height: calc(100vh - 49px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -35,4 +34,3 @@ export const ButtonWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
 `;
-

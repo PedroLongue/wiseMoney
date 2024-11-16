@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Container,
   LoginTitle,
@@ -8,19 +8,39 @@ import {
   ButtonWrapper,
 } from "./styles";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import { Link } from "react-router-dom";
+import Button from "../../components/Button";
+import InputField from "../../components/TextField";
+import { Link, useNavigate } from "react-router-dom";
+
+import AuthContext from "../../contexts/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const { user, Login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    } else {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Adicione sua lógica de autenticação ou de envio de dados aqui
-    console.log("Email:", email);
-    console.log("Password:", password);
+    setLoading(true);
+
+    try {
+      await Login(email, password);
+    } catch (error) {
+      console.error("Erro de autenticação:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,57 +55,33 @@ const Login = () => {
           borderRadius: "20px",
         }}
       >
-        <LoginTitle>Bem-vindo ao MoneyWise!</LoginTitle>
+        <LoginTitle>Bem-vindo ao WiseMoney!</LoginTitle>
         <LoginSubtitle style={{ marginTop: "14px" }}>
           Aqui, você encontra ferramentas e insights para transformar suas
           finanças em algo simples e estratégico.
         </LoginSubtitle>
         <form onSubmit={handleSubmit}>
           <InputWrapper>
-            <TextField
+            <InputField
               id="email"
               label="Digite seu email..."
-              variant="standard"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              sx={{
-                "& .MuiInput-underline:after": {
-                  borderBottomColor: "#2A382F",
-                },
-                "& .MuiFormLabel-root.Mui-focused": {
-                  color: "#2A382F",
-                },
-              }}
             />
-            <TextField
+            <InputField
               id="password"
               label="Digite sua senha..."
-              variant="standard"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              sx={{
-                "& .MuiInput-underline:after": {
-                  borderBottomColor: "#2A382F",
-                },
-                "& .MuiFormLabel-root.Mui-focused": {
-                  color: "#2A382F",
-                },
-              }}
             />
           </InputWrapper>
           <ButtonWrapper>
             <LoginText>
               Não tem conta? <Link to="/register">Cadastre-se</Link>
             </LoginText>
-            <Button
-              type="submit"
-              variant="contained"
-              sx={{ background: "#2A382F", width: "144px" }}
-            >
-              Acessar
-            </Button>
+            <Button text="Acessar" />
           </ButtonWrapper>
         </form>
       </Box>

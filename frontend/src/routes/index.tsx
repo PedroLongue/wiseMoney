@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Header from "../components/Header";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
@@ -10,7 +10,7 @@ export const AppRouter = () => {
   const { signed } = useContext(AuthContext);
 
   return (
-    <BrowserRouter>
+    <>
       <Header />
       <Routes>
         <Route
@@ -21,6 +21,6 @@ export const AppRouter = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 };

@@ -18,7 +18,7 @@ import { AuthContext } from "../../contexts/auth";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { singIn, signed, loginError } = useContext(AuthContext);
+  const { singIn, signed, authError } = useContext(AuthContext);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -60,7 +60,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </InputWrapper>
-            {loginError && <ErrorMessage>{loginError}</ErrorMessage>}
+            {authError && <ErrorMessage>{authError}</ErrorMessage>}
             <ButtonWrapper>
               <LoginText>
                 Não tem conta? <Link to="/register">Cadastre-se</Link>

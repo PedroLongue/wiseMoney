@@ -1,14 +1,20 @@
 import React, { createContext, ReactNode, useEffect, useState } from "react";
 import api from "../services/api";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 interface AuthContextData {
   signed: boolean;
   user: object | null;
+  register(
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+  ): Promise<void>;
   singIn(email: string, password: string): Promise<void>;
   singOut(): void;
-  loginError: string;
+  authError: string;
   currentUser: CurrentUser | null;
 }
 
@@ -29,8 +35,9 @@ export const AuthContext = createContext<AuthContextData>(
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<object | null>(null);
-  const [loginError, setLoginError] = useState("");
+  const [authError, setAuthError] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadingStoreData = () => {
@@ -44,6 +51,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
     loadingStoreData();
   }, []);
+
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string
+  ) => {
+    try {
+      const response = await api.post("/auth/register", {
+        name,
+        email,
+        password,
+        confirmPassword,
+      });
+
+      if (response.data.error) {
+        console.log(response.data.error);
+      } else {
+        navigate("/login");
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        setAuthError(error.response.data.msg);
+        console.log(error.response.data.msg);
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+    }
+  };
 
   const singIn = async (email: string, password: string) => {
     try {
@@ -62,7 +98,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        setLoginError(error.response.data.msg);
+        setAuthError(error.response.data.msg);
       } else {
         console.error("Erro ao fazer login:", error);
       }
@@ -72,7 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const singOut = () => {
     localStorage.clear();
     setUser(null);
-    return <Navigate to="/login" />;
+    navigate("login");
   };
 
   const getCurrentUser = async () => {
@@ -86,7 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        setLoginError(error.response.data.msg);
+        setAuthError(error.response.data.msg);
       } else {
         console.log(error);
       }
@@ -97,10 +133,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        register,
         singIn,
         singOut,
         signed: !!user,
-        loginError,
+        authError,
         currentUser,
       }}
     >

@@ -34,3 +34,10 @@ export const ButtonWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
 `;
+
+export const ErrorMessage = styled.span`
+  position: absolute;
+  bottom: 35px;
+  color: #9f3a3a;
+  font-size: 12px;
+`;

@@ -5,25 +5,48 @@ import {
   InputWrapper,
   LoginText,
   ButtonWrapper,
+  ErrorMessage,
 } from "../Login/styles";
 import Button from "../../components/Button";
 import Box from "@mui/material/Box";
 import InputField from "../../components/TextField";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../../services/api";
+import axios from "axios";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Adicione sua lógica de autenticação ou de envio de dados aqui
-    console.log("Name:", name);
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log("ConfirmPassword:", confirmPassword);
+
+    try {
+      const response = await api.post("/auth/register", {
+        name,
+        email,
+        password,
+        confirmPassword,
+      });
+
+      if (response.data.error) {
+        console.log(response.data.error);
+      } else {
+        navigate("/login");
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        setError(error.response.data.msg);
+        console.log(error.response.data.msg); // Acessa a mensagem retornada pelo servidor
+      } else {
+        console.error("Erro desconhecido:", error);
+      }
+    }
   };
   return (
     <Container>
@@ -38,7 +61,7 @@ const Register = () => {
         }}
       >
         <LoginTitle>Faça seu cadastro!</LoginTitle>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ position: "relative" }}>
           <InputWrapper>
             <InputField
               id="name"
@@ -69,6 +92,7 @@ const Register = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </InputWrapper>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
           <ButtonWrapper>
             <LoginText>
               Já tem conta? <Link to="/login">Faça login</Link>

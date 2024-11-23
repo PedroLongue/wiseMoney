@@ -1,54 +1,79 @@
-import React, { createContext, ReactNode, useState } from "react";
+import React, { createContext, ReactNode, useEffect, useState } from "react";
 import api from "../services/api";
+import { Navigate } from "react-router-dom";
+import axios from "axios";
 
 interface AuthContextData {
   signed: boolean;
   user: object | null;
-  setUser: React.Dispatch<React.SetStateAction<object | null>>;
-  Login(email: string, password: string): Promise<void>;
-  Logout(): void;
+  singIn(email: string, password: string): Promise<void>;
+  singOut(): void;
+  loginError: string;
 }
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-const AuthContext = createContext<AuthContextData>({} as AuthContextData);
+export const AuthContext = createContext<AuthContextData>(
+  {} as AuthContextData
+);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<object | null>(null);
+  const [loginError, setLoginError] = useState("");
 
-  async function Login(email: string, password: string) {
+  useEffect(() => {
+    const loadingStoreData = () => {
+      const storageToken = localStorage.getItem("@Auth:token");
+
+      if (storageToken) {
+        setUser({ storageToken });
+      }
+    };
+    loadingStoreData();
+  }, []);
+
+  const singIn = async (email: string, password: string) => {
     try {
       const response = await api.post("/auth/login", { email, password });
+      if (response.data.error) {
+        console.log(response.data.error);
+      } else {
+        setUser(response.data);
 
-      const userData = { id: response.data._id, message: response.data.msg };
-      
-      setUser(userData);
+        api.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${response.data.token}`;
 
-      localStorage.setItem("token", response.data.token);
-      api.defaults.headers.Authorization = `Bearer ${response.data.token}`;
-
-      console.log("Usuário logado com sucesso:", userData);
+        localStorage.setItem("@Auth:token", response.data.token);
+      }
     } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      throw new Error("Falha no login");
+      if (axios.isAxiosError(error) && error.response) {
+        setLoginError(error.response.data.msg);
+      } else {
+        console.error("Erro ao fazer login:", error);
+      }
     }
-  }
+  };
 
-  function Logout() {
+  const singOut = () => {
+    localStorage.clear();
     setUser(null);
-
-    localStorage.removeItem("token");
-  }
+    return <Navigate to="/login" />;
+  };
 
   return (
     <AuthContext.Provider
-      value={{ signed: Boolean(user), user, setUser, Login, Logout }}
+      value={{
+        user,
+        singIn,
+        singOut,
+        signed: !!user,
+        loginError,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
-
-export default AuthContext;

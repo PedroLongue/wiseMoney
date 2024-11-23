@@ -9,10 +9,18 @@ interface AuthContextData {
   singIn(email: string, password: string): Promise<void>;
   singOut(): void;
   loginError: string;
+  currentUser: CurrentUser | null;
 }
 
 interface AuthProviderProps {
   children: ReactNode;
+}
+
+interface CurrentUser {
+  _id: string;
+  name: string;
+  email: string;
+  __v: number;
 }
 
 export const AuthContext = createContext<AuthContextData>(
@@ -22,13 +30,16 @@ export const AuthContext = createContext<AuthContextData>(
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<object | null>(null);
   const [loginError, setLoginError] = useState("");
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const loadingStoreData = () => {
       const storageToken = localStorage.getItem("@Auth:token");
 
       if (storageToken) {
+        api.defaults.headers.common["Authorization"] = `Bearer ${storageToken}`;
         setUser({ storageToken });
+        getCurrentUser();
       }
     };
     loadingStoreData();
@@ -40,13 +51,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.data.error) {
         console.log(response.data.error);
       } else {
-        setUser(response.data);
+        setUser(response.data.token);
 
         api.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${response.data.token}`;
 
         localStorage.setItem("@Auth:token", response.data.token);
+        getCurrentUser();
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
@@ -63,6 +75,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return <Navigate to="/login" />;
   };
 
+  const getCurrentUser = async () => {
+    try {
+      const response = await api.get("auth/currentUser");
+
+      if (response.data.error) {
+        console.log(response.data.msg);
+      } else {
+        setCurrentUser(response.data);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        setLoginError(error.response.data.msg);
+      } else {
+        console.log(error);
+      }
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -71,6 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         singOut,
         signed: !!user,
         loginError,
+        currentUser,
       }}
     >
       {children}

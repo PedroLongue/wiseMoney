@@ -7,7 +7,7 @@ import { AuthContext } from "../contexts/auth";
 import { useContext } from "react";
 
 export const AppRouter = () => {
-  const {signed} = useContext(AuthContext);
+  const { signed } = useContext(AuthContext);
 
   return (
     <BrowserRouter>

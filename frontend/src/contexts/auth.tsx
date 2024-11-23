@@ -52,6 +52,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadingStoreData();
   }, []);
 
+  const handleError = (error: unknown): void => {
+    if (axios.isAxiosError(error) && error.response) {
+      setAuthError(error.response.data.msg);
+      console.error(error.response.data.msg);
+    } else {
+      console.error("Erro desconhecido:", error);
+    }
+  };
+
   const register = async (
     name: string,
     email: string,
@@ -72,12 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         navigate("/login");
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        setAuthError(error.response.data.msg);
-        console.log(error.response.data.msg);
-      } else {
-        console.error("Erro desconhecido:", error);
-      }
+      handleError(error);
     }
   };
 
@@ -97,17 +101,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         getCurrentUser();
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        setAuthError(error.response.data.msg);
-      } else {
-        console.error("Erro ao fazer login:", error);
-      }
+      handleError(error);
     }
   };
 
   const singOut = () => {
     localStorage.clear();
     setUser(null);
+    setCurrentUser(null);
     navigate("login");
   };
 
@@ -121,11 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setCurrentUser(response.data);
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        setAuthError(error.response.data.msg);
-      } else {
-        console.log(error);
-      }
+      handleError(error);
     }
   };
 

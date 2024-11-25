@@ -1,9 +1,10 @@
 import React from "react";
 import Button from "@mui/material/Button";
+import SendIcon from '@mui/icons-material/Send';
 
 export interface SubmitButtonProps {
   text: string;
-  onClick?: () => void; // Adiciona a prop opcional onClick
+  onClick?: () => void; 
 }
 
 const SubmitButton: React.FC<SubmitButtonProps> = ({ text, onClick }) => {
@@ -11,8 +12,9 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({ text, onClick }) => {
     <Button
       type="submit"
       variant="contained"
+      endIcon={<SendIcon />}
       sx={{ background: "#15b858", width: "144px" }}
-      onClick={onClick} // Passa o onClick opcional
+      onClick={onClick} 
     >
       {text}
     </Button>

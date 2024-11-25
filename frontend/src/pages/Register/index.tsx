@@ -1,9 +1,7 @@
 import React, { useContext, useState } from "react";
 import {
   Container,
-  LoginTitle,
   InputWrapper,
-  LoginText,
   ButtonWrapper,
   ErrorMessage,
 } from "../Login/styles";
@@ -13,6 +11,7 @@ import InputField from "../../components/TextField";
 import { Link } from "react-router-dom";
 
 import { AuthContext } from "../../contexts/auth";
+import { Typography } from "@mui/material";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -31,14 +30,15 @@ const Register = () => {
       <Box
         component="section"
         sx={{
-          background: "#D9D9D9",
           width: "100%",
           maxWidth: "480px",
           padding: "30px",
           borderRadius: "20px",
         }}
       >
-        <LoginTitle>Faça seu cadastro!</LoginTitle>
+        <Typography variant="h4" color="#fff" fontWeight={400}>
+          Faça seu cadastro!
+        </Typography>
         <form onSubmit={handleSubmit} style={{ position: "relative" }}>
           <InputWrapper>
             <InputField
@@ -72,9 +72,12 @@ const Register = () => {
           </InputWrapper>
           {authError && <ErrorMessage>{authError}</ErrorMessage>}
           <ButtonWrapper>
-            <LoginText>
-              Já tem conta? <Link to="/login">Faça login</Link>
-            </LoginText>
+            <Typography variant="body2" color="#fff" fontWeight={400}>
+              Já tem conta?{" "}
+              <Link to="/login" style={{ textDecoration: "underline" }}>
+                Faça login
+              </Link>
+            </Typography>
             <Button text="Cadastrar" />
           </ButtonWrapper>
         </form>

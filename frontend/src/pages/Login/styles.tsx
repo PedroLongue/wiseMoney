@@ -7,26 +7,12 @@ export const Container = styled.div`
   justify-content: center;
   align-items: center;
 `;
-export const LoginTitle = styled.h1`
-  color: #2e623e;
-  font-size: 24px;
-`;
-export const LoginSubtitle = styled.h1`
-  color: #000;
-  font-size: 16px;
-`;
 
 export const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
   margin: 20px 0px;
-`;
-
-export const LoginText = styled.span`
-  font-size: 16px;
-  color: #2a382f;
-  font-weight: bold;
 `;
 
 export const ButtonWrapper = styled.div`

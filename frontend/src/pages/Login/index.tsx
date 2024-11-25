@@ -1,10 +1,7 @@
 import React, { useContext, useState } from "react";
 import {
   Container,
-  LoginTitle,
-  LoginSubtitle,
   InputWrapper,
-  LoginText,
   ButtonWrapper,
   ErrorMessage,
 } from "./styles";
@@ -14,6 +11,7 @@ import InputField from "../../components/TextField";
 import { Link, Navigate } from "react-router-dom";
 
 import { AuthContext } from "../../contexts/auth";
+import { Typography } from "@mui/material";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -31,18 +29,18 @@ const Login = () => {
         <Box
           component="section"
           sx={{
-            background: "#D9D9D9",
             width: "100%",
             maxWidth: "480px",
             padding: "30px",
             borderRadius: "20px",
           }}
         >
-          <LoginTitle>Bem-vindo ao WiseMoney!</LoginTitle>
-          <LoginSubtitle style={{ marginTop: "14px" }}>
-            Aqui, você encontra ferramentas e insights para transformar suas
-            finanças em algo simples e estratégico.
-          </LoginSubtitle>
+          <Typography variant="h4" color="#fff" fontWeight={400}>
+            Bem-vindo ao WiseMoney!
+          </Typography>
+          <Typography variant="h6" color="#fff" fontWeight={400}>
+            Faça seu login para acessar...
+          </Typography>
           <form onSubmit={handleSubmit} style={{ position: "relative" }}>
             <InputWrapper>
               <InputField
@@ -62,9 +60,12 @@ const Login = () => {
             </InputWrapper>
             {authError && <ErrorMessage>{authError}</ErrorMessage>}
             <ButtonWrapper>
-              <LoginText>
-                Não tem conta? <Link to="/register">Cadastre-se</Link>
-              </LoginText>
+              <Typography variant="body2" color="#fff" fontWeight={400}>
+                Não tem conta?{" "}
+                <Link to="/register" style={{ textDecoration: "underline" }}>
+                  Cadastre-se
+                </Link>
+              </Typography>
               <Button text={"Acessar"} />
             </ButtonWrapper>
           </form>

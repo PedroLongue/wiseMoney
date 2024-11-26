@@ -1,23 +1,69 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useContext, useEffect, useState } from "react";
 import { HomeContainer } from "./styles";
 import Graph from "../../components/Graph";
+import { AuthContext } from "../../contexts/auth";
+import { format, parseISO } from "date-fns";
 
-import { fetchExpenses, processExpenses } from "../../services/expenseService";
+import {
+  deleteExpensesById,
+  getExpensesByUserId,
+  processExpenses,
+  saveExpense,
+} from "../../services/expenseService";
 import { Box, Typography } from "@mui/material";
+import SubmitButton from "../../components/Button";
+import ExpenseModal from "../../components/ExpenseModal";
+import ExpenseList from "../../components/ExpenseList";
 
 const Home = () => {
+  const { currentUser } = useContext(AuthContext);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [chartData, setChartData] = useState<any>({
     labels: [],
     datasets: [],
   });
 
+  const [expenses, setExpenses] = useState<
+    { id: string; name: string; value: string; date: string; type: string }[]
+  >([]);
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
   useEffect(() => {
-    const loadData = async () => {
-      const expenses = await fetchExpenses();
-      const processedData = processExpenses(expenses);
-      const labels = processedData.map((item) => item.name);
-      const values = processedData.map((item) => item.value);
+    const userId = currentUser?._id;
+    if (userId) {
+      fetchAndSetExpenses(userId);
+      console.log("userId:", userId);
+    } else {
+      console.error("UserId não encontrado no localStorage.");
+    }
+  }, [currentUser]);
+
+  const fetchAndSetExpenses = async (userId: string) => {
+    try {
+      const data = await getExpensesByUserId(userId);
+      console.log(data);
+
+      // Atualiza a lista de despesas
+      const formattedExpenses = data.map((item: any) => ({
+        id: item._id,
+        name: item.expenseTitle,
+        value: item.expenseValue,
+        date: format(parseISO(item.expenseDate), "dd/MM/yyyy"),
+        type: item.expenseType,
+      }));
+
+      setExpenses(formattedExpenses);
+
+      // Processa e ordena despesas para o gráfico
+      const processedExpenses = processExpenses(data);
+
+      const labels = processedExpenses.map((item) => item.name); // ["Jan 2024", "Feb 2024", ...]
+      const values = processedExpenses.map((item) => item.value); // Valores correspondentes
 
       setChartData({
         labels,
@@ -31,10 +77,55 @@ const Home = () => {
           },
         ],
       });
-    };
+    } catch (error) {
+      console.error("Erro ao buscar despesas:", error);
+    }
+  };
 
-    loadData();
-  }, []);
+  const handleDeleteExpense = async (id: string) => {
+    try {
+      await deleteExpensesById(id);
+      console.log(`Despesa com ID ${id} deletada com sucesso.`);
+
+      setExpenses((prevExpenses) =>
+        prevExpenses.filter((expense) => expense.id !== id)
+      );
+
+      const userId = currentUser?._id;
+      if (userId) {
+        await fetchAndSetExpenses(userId);
+      }
+    } catch (error) {
+      console.error("Erro ao deletar despesa:", error);
+    }
+  };
+
+  const handleSaveExpense = async (expense: {
+    name: string;
+    value: string;
+    date: string;
+    type: string;
+  }) => {
+    try {
+      const expenseData = {
+        expenseTitle: expense.name,
+        expenseValue: parseFloat(expense.value),
+        expenseType: expense.type,
+        expenseDate: expense.date,
+      };
+
+      await saveExpense(expenseData);
+
+      console.log("Despesa salva com sucesso no backend.");
+
+      const userId = currentUser?._id;
+      if (userId) {
+        await fetchAndSetExpenses(userId);
+      }
+    } catch (error) {
+      console.error("Erro ao salvar despesa:", error);
+    }
+  };
 
   const chartOptions = {
     responsive: true,
@@ -74,7 +165,30 @@ const Home = () => {
           options={chartOptions}
           title="Despesas Mensais"
         />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            margin: "20px 0px",
+          }}
+        >
+          <Typography variant="body1" color="#fff" fontWeight={400}>
+            Lançamentos recentes
+          </Typography>
+          <SubmitButton text={"Adicionar"} onClick={handleOpen} addExpense />
+        </Box>
+        <ExpenseList
+          expenses={expenses}
+          onSaveExpense={handleSaveExpense}
+          onDeleteExpense={handleDeleteExpense}
+        />
       </Box>
+      <ExpenseModal
+        open={open}
+        handleClose={handleClose}
+        onSave={handleSaveExpense}
+      />
     </HomeContainer>
   );
 };

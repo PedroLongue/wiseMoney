@@ -38,7 +38,7 @@ const Graph: React.FC<GraphProps> = ({ data, options, title }) => {
         padding: 3,
         borderRadius: 2,
         boxShadow: 3,
-        maxWidth: "800px",
+        maxWidth: "1200px",
         margin: "auto",
       }}
     >

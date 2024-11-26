@@ -1,81 +1,71 @@
 import { format, parseISO } from "date-fns";
 
-export const fetchExpenses = async () => {
-  const backendData = [
-    {
-      _id: "6744ec21f5930a0eed7db8f1",
-      userId: "6742391739940df26db8b61f",
-      expenseTitle: "Conta de luz",
-      expenseValue: 130,
-      expenseType: "Débito",
-      expenseDate: "2024-10-31T00:00:00.000Z",
-      __v: 0,
-    },
-    {
-      _id: "6744ec21f5930a0eed7db8b61f",
-      userId: "6742391739940df26db8b61f",
-      expenseTitle: "Aluguel",
-      expenseValue: 1000,
-      expenseType: "Débito",
-      expenseDate: "2024-10-01T00:00:00.000Z",
-      __v: 0,
-    },
-    {
-      _id: "6744ec21f5930a0eed7db8b61f",
-      userId: "6742391739940df26db8b61f",
-      expenseTitle: "Internet",
-      expenseValue: 200,
-      expenseType: "Débito",
-      expenseDate: "2025-10-10T00:00:00.000Z",
-      __v: 0,
-    },
-    {
-      _id: "6744ec21f5930a0eed7db8b61f",
-      userId: "6742391739940df26db8b61f",
-      expenseTitle: "Internet",
-      expenseValue: 500,
-      expenseType: "Débito",
-      expenseDate: "2025-09-10T00:00:00.000Z",
-      __v: 0,
-    },
-    {
-      _id: "6744ec21f5930a0eed7db8b61f",
-      userId: "6742391739940df26db8b61f",
-      expenseTitle: "Internet",
-      expenseValue: 350,
-      expenseType: "Débito",
-      expenseDate: "2025-08-10T00:00:00.000Z",
-      __v: 0,
-    },
-    {
-      _id: "6744ec21f5930a0eed7db8b61f",
-      userId: "6742391739940df26db8b61f",
-      expenseTitle: "Internet",
-      expenseValue: 1000,
-      expenseType: "Débito",
-      expenseDate: "2025-07-10T00:00:00.000Z",
-      __v: 0,
-    },
-  ];
+import api from "./api";
 
-  return backendData;
+interface Expense {
+  expenseTitle: string;
+  expenseValue: number;
+  expenseType: string;
+  expenseDate: string;
+}
+
+export const saveExpense = async (expense: Expense): Promise<void> => {
+  try {
+    const response = await api.post("/expenseEntries", expense);
+    console.log("Despesa cadastrada com sucesso:", response.data);
+  } catch (error) {
+    console.error("Erro ao cadastrar despesa:", error);
+    throw error;
+  }
+};
+
+export const getExpensesByUserId = async (userId: string) => {
+  try {
+    const response = await api.get(`/expenseEntries/getExpenses/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar despesas:", error);
+    throw error;
+  }
+};
+
+export const deleteExpensesById = async (expenseId: string) => {
+  try {
+    const response = await api.delete(`/expenseEntries/${expenseId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar despesas:", error);
+    throw error;
+  }
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const processExpenses = (expenses: any[]) => {
-  const monthlyExpenses: { [key: string]: number } = {};
+  const monthlyExpenses: { [key: string]: { total: number; rawDate: Date } } =
+    {};
 
   expenses.forEach((expense) => {
     const date = parseISO(expense.expenseDate);
     const monthYear = format(date, "MMM yyyy");
+
     if (!monthlyExpenses[monthYear]) {
-      monthlyExpenses[monthYear] = 0;
+      monthlyExpenses[monthYear] = {
+        total: 0,
+        rawDate: new Date(date.getFullYear(), date.getMonth(), 1),
+      };
     }
-    monthlyExpenses[monthYear] += expense.expenseValue;
+
+    monthlyExpenses[monthYear].total += expense.expenseValue;
   });
 
-  return Object.entries(monthlyExpenses).map(([monthYear, value]) => ({
-    name: monthYear,
-    value,
-  }));
+  // Converte o objeto para um array e ordena pelas datas reais (rawDate)
+  const sortedExpenses = Object.entries(monthlyExpenses)
+    .map(([monthYear, { total, rawDate }]) => ({
+      name: monthYear,
+      value: total,
+      rawDate,
+    }))
+    .sort((a, b) => a.rawDate.getTime() - b.rawDate.getTime()); // Ordena cronologicamente
+
+  return sortedExpenses.map(({ name, value }) => ({ name, value })); // Remove `rawDate` no retorno
 };

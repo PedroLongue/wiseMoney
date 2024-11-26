@@ -19,7 +19,6 @@ import ExpenseList from "../../components/ExpenseList";
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [chartData, setChartData] = useState<any>({
     labels: [],
     datasets: [],
@@ -48,7 +47,6 @@ const Home = () => {
       const data = await getExpensesByUserId(userId);
       console.log(data);
 
-      // Atualiza a lista de despesas
       const formattedExpenses = data.map((item: any) => ({
         id: item._id,
         name: item.expenseTitle,
@@ -59,11 +57,10 @@ const Home = () => {
 
       setExpenses(formattedExpenses);
 
-      // Processa e ordena despesas para o gráfico
       const processedExpenses = processExpenses(data);
 
-      const labels = processedExpenses.map((item) => item.name); // ["Jan 2024", "Feb 2024", ...]
-      const values = processedExpenses.map((item) => item.value); // Valores correspondentes
+      const labels = processedExpenses.map((item) => item.name);
+      const values = processedExpenses.map((item) => item.value);
 
       setChartData({
         labels,
@@ -72,7 +69,7 @@ const Home = () => {
             label: "Despesas Mensais",
             data: values,
             borderColor: "#15b858",
-            backgroundColor: "#121212",
+            backgroundColor: "#fff",
             tension: 0.4,
           },
         ],

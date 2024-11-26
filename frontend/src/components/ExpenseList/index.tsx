@@ -31,7 +31,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
             display={"flex"}
             justifyContent={"space-between"}
             alignItems={"center"}
-            margin={2}
+            sx={{margin: "16px 0"}}
           >
             <Box display={"flex"} alignItems={"center"} gap={2}>
               <CurrencyExchangeIcon sx={{ color: "#fff", fontSize: "48px" }} />

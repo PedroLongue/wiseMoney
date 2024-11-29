@@ -11,7 +11,7 @@ import {
   processExpenses,
   saveExpense,
 } from "../../services/expenseService";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Tabs, Tab } from "@mui/material";
 import SubmitButton from "../../components/Button";
 import ExpenseModal from "../../components/ExpenseModal";
 import ExpenseList from "../../components/ExpenseList";
@@ -24,6 +24,11 @@ const Home = () => {
     datasets: [],
   });
 
+  const [balanceData, setBalanceData] = useState<any>({
+    labels: [],
+    datasets: [],
+  });
+
   const [expenses, setExpenses] = useState<
     { id: string; name: string; value: string; date: string; type: string }[]
   >([]);
@@ -31,6 +36,8 @@ const Home = () => {
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
     const userId = currentUser?._id;
@@ -47,6 +54,13 @@ const Home = () => {
       const data = await getExpensesByUserId(userId);
       console.log(data);
 
+      const debitExpenses = data.filter(
+        (item: any) => item.expenseType === "debit"
+      );
+      const creditExpenses = data.filter(
+        (item: any) => item.expenseType === "credit"
+      );
+
       const formattedExpenses = data.map((item: any) => ({
         id: item._id,
         name: item.expenseTitle,
@@ -57,17 +71,46 @@ const Home = () => {
 
       setExpenses(formattedExpenses);
 
-      const processedExpenses = processExpenses(data);
-
-      const labels = processedExpenses.map((item) => item.name);
-      const values = processedExpenses.map((item) => item.value);
+      // Processar débitos para o gráfico de despesas
+      const processedDebits = processExpenses(debitExpenses);
+      const debitLabels = processedDebits.map((item) => item.name);
+      const debitValues = processedDebits.map((item) => item.value);
 
       setChartData({
-        labels,
+        labels: debitLabels,
         datasets: [
           {
             label: "Despesas Mensais",
-            data: values,
+            data: debitValues,
+            borderColor: "#15b858",
+            backgroundColor: "#fff",
+            tension: 0.4,
+          },
+        ],
+      });
+
+      // Processar saldo para o gráfico de saldo mensal
+      const monthlyBalances = processExpenses(
+        creditExpenses.map((credit: any) => {
+          const debit = debitExpenses.find(
+            (debit: any) => debit.expenseDate === credit.expenseDate
+          );
+          return {
+            ...credit,
+            expenseValue: credit.expenseValue - (debit?.expenseValue || 0),
+          };
+        })
+      );
+
+      const balanceLabels = monthlyBalances.map((item) => item.name);
+      const balanceValues = monthlyBalances.map((item) => item.value);
+
+      setBalanceData({
+        labels: balanceLabels,
+        datasets: [
+          {
+            label: "Saldo Mensal",
+            data: balanceValues,
             borderColor: "#15b858",
             backgroundColor: "#fff",
             tension: 0.4,
@@ -157,11 +200,43 @@ const Home = () => {
           Visão Geral
         </Typography>
 
-        <Graph
-          data={chartData}
-          options={chartOptions}
-          title="Despesas Mensais"
-        />
+        <Tabs
+          value={tabValue}
+          onChange={(event, newValue) => setTabValue(newValue)}
+          textColor="inherit"
+          indicatorColor="primary"
+          sx={{
+            marginBottom: "20px",
+            "& .MuiTab-root": {
+              color: "#fff", 
+            },
+            "& .Mui-selected": {
+              color: "#15b858", 
+            },
+            "& .MuiTabs-indicator": {
+              backgroundColor: "#15b858", 
+            },
+          }}
+        >
+          <Tab label="Despesas Mensais" />
+          <Tab label="Saldo Mensal" />
+        </Tabs>
+
+        {tabValue === 0 && (
+          <Graph
+            data={chartData}
+            options={chartOptions}
+            title="Despesas Mensais"
+          />
+        )}
+        {tabValue === 1 && (
+          <Graph
+            data={balanceData}
+            options={chartOptions}
+            title="Saldo Mensal"
+          />
+        )}
+
         <Box
           sx={{
             display: "flex",

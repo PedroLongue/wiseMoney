@@ -1,7 +1,12 @@
-import { Box, IconButton, Typography } from "@mui/material";
-import React from "react";
+import {
+  Box,
+  IconButton,
+  Typography,
+  Divider,
+  Pagination,
+} from "@mui/material";
+import React, { useState } from "react";
 import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
-import Divider from "@mui/material/Divider";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 type Expense = {
@@ -22,16 +27,25 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
   expenses,
   onDeleteExpense,
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+
+  const paginatedExpenses = expenses.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(expenses.length / itemsPerPage);
+
   return (
-    <>
-      {expenses.map((expense) => (
-        <>
+    <Box>
+      {paginatedExpenses.map((expense) => (
+        <React.Fragment key={expense.id}>
           <Box
-            key={expense.id}
             display={"flex"}
             justifyContent={"space-between"}
             alignItems={"center"}
-            sx={{margin: "16px 0"}}
+            sx={{ margin: "16px 0" }}
           >
             <Box display={"flex"} alignItems={"center"} gap={2}>
               <CurrencyExchangeIcon sx={{ color: "#fff", fontSize: "48px" }} />
@@ -60,9 +74,31 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
             </Box>
           </Box>
           <Divider sx={{ backgroundColor: "#c2c2c2" }} />
-        </>
+        </React.Fragment>
       ))}
-    </>
+      {expenses.length > itemsPerPage && (
+        <Box display="flex" justifyContent="center" mt={2}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(event, page) => setCurrentPage(page)}
+            color="primary"
+            sx={{
+              "& .MuiPaginationItem-root": {
+                color: "#fff",
+              },
+              "& .Mui-selected": {
+                color: "#15b858",
+                backgroundColor: "transparent",
+              },
+              "& .MuiPaginationItem-root:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+              },
+            }}
+          />
+        </Box>
+      )}
+    </Box>
   );
 };
 

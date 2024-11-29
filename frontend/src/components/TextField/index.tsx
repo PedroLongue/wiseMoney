@@ -7,6 +7,8 @@ interface InputFieldProps {
   type: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  error?: boolean; // Propriedade para exibir o estado de erro
+  helperText?: string;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -15,16 +17,19 @@ const InputField: React.FC<InputFieldProps> = ({
   type,
   value,
   onChange,
+  error,
+  helperText
 }) => {
   return (
     <TextField
       id={id}
       label={label}
-      // multiline
       variant="outlined"
       type={type}
       value={value}
       onChange={onChange}
+      error={error} 
+      helperText={helperText}
       sx={{
         "& .MuiOutlinedInput-root": {
           backgroundColor: "#29382e", // Cor de fundo
@@ -50,6 +55,7 @@ const InputField: React.FC<InputFieldProps> = ({
         "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline": {
           borderColor: "transparent", // Cor da borda ao passar o mouse
         },
+        width: "100%",
       }}
     />
   );

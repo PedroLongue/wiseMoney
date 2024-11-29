@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Typography,
@@ -6,9 +6,12 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
+  IconButton,
 } from "@mui/material";
+import { useForm, Controller } from "react-hook-form";
 import InputField from "../TextField";
 import SubmitButton from "../Button";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface ExpenseModalProps {
   open: boolean;
@@ -26,19 +29,24 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
   handleClose,
   onSave,
 }) => {
-  const [expenseName, setExpenseName] = useState("");
-  const [expenseValue, setExpenseValue] = useState("");
-  const [expenseDate, setExpenseDate] = useState("");
-  const [expenseType, setExpenseType] = useState("credit");
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      name: "",
+      value: "",
+      date: "",
+      type: "credit",
+    },
+  });
 
-  const handleSave = () => {
-    onSave({
-      name: expenseName,
-      value: expenseValue,
-      date: expenseDate,
-      type: expenseType,
-    });
+  const onSubmit = (data: {
+    name: string;
+    value: string;
+    date: string;
+    type: string;
+  }) => {
+    onSave(data);
     handleClose();
+    reset();
   };
 
   return (
@@ -66,7 +74,21 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
         <Typography id="modal-title" variant="h6" color="#fff">
           Cadastrar nova despesa
         </Typography>
+
+        <IconButton
+          onClick={handleClose}
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            color: "#fff",
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
         <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
           sx={{
             display: "flex",
             flexDirection: "column",
@@ -74,63 +96,103 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
             margin: "20px 0px",
           }}
         >
-          <InputField
-            id="expenseName"
-            label="Título da despesa..."
-            type="text"
-            value={expenseName}
-            onChange={(e) => setExpenseName(e.target.value)}
+          <Controller
+            name="name"
+            control={control}
+            rules={{ required: "Título da despesa é obrigatório" }}
+            render={({ field, fieldState }) => (
+              <Box>
+                <InputField
+                  {...field}
+                  id="expenseName"
+                  label="Título da despesa..."
+                  type="text"
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              </Box>
+            )}
           />
-          <InputField
-            id="expenseValue"
-            label="Valor da despesa..."
-            type="text"
-            value={expenseValue}
-            onChange={(e) => setExpenseValue(e.target.value)}
+
+          <Controller
+            name="value"
+            control={control}
+            rules={{
+              required: "Valor da despesa é obrigatório",
+              validate: (value) =>
+                !isNaN(parseFloat(value)) || "Insira um número válido",
+            }}
+            render={({ field, fieldState }) => (
+              <Box>
+                <InputField
+                  {...field}
+                  id="expenseValue"
+                  label="Valor da despesa..."
+                  type="text"
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              </Box>
+            )}
           />
-          <RadioGroup
-            row
-            value={expenseType}
-            onChange={(e) => setExpenseType(e.target.value)}
-          >
-            <FormControlLabel
-              value="credit"
-              control={<Radio />}
-              label="Crédito"
-              sx={{
-                color: "#fff",
-                "& .MuiRadio-root": {
-                  color: "#fff",
-                },
-                "& .MuiRadio-root.Mui-checked": {
-                  color: "#15b858",
-                },
-              }}
-            />
-            <FormControlLabel
-              value="debit"
-              control={<Radio />}
-              label="Débito"
-              sx={{
-                color: "#fff",
-                "& .MuiRadio-root": {
-                  color: "#fff",
-                },
-                "& .MuiRadio-root.Mui-checked": {
-                  color: "#15b858",
-                },
-              }}
-            />
-          </RadioGroup>
-          <InputField
-            id="expenseDate"
-            label=""
-            type="date"
-            value={expenseDate}
-            onChange={(e) => setExpenseDate(e.target.value)}
+
+          <Controller
+            name="type"
+            control={control}
+            render={({ field }) => (
+              <RadioGroup row {...field}>
+                <FormControlLabel
+                  value="credit"
+                  control={<Radio />}
+                  label="Crédito"
+                  sx={{
+                    color: "#fff",
+                    "& .MuiRadio-root": {
+                      color: "#fff",
+                    },
+                    "& .MuiRadio-root.Mui-checked": {
+                      color: "#15b858",
+                    },
+                  }}
+                />
+                <FormControlLabel
+                  value="debit"
+                  control={<Radio />}
+                  label="Débito"
+                  sx={{
+                    color: "#fff",
+                    "& .MuiRadio-root": {
+                      color: "#fff",
+                    },
+                    "& .MuiRadio-root.Mui-checked": {
+                      color: "#15b858",
+                    },
+                  }}
+                />
+              </RadioGroup>
+            )}
           />
+
+          <Controller
+            name="date"
+            control={control}
+            rules={{ required: "A data é obrigatória" }}
+            render={({ field, fieldState }) => (
+              <Box>
+                <InputField
+                  {...field}
+                  id="expenseDate"
+                  label=""
+                  type="date"
+                  error={!!fieldState.error}
+                  helperText={fieldState.error?.message}
+                />
+              </Box>
+            )}
+          />
+
+          <SubmitButton text="Adicionar" />
         </Box>
-        <SubmitButton text="Adicionar" onClick={handleSave} />
       </Box>
     </Modal>
   );

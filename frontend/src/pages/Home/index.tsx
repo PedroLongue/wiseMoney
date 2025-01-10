@@ -202,7 +202,7 @@ const Home = () => {
 
         <Tabs
           value={tabValue}
-          onChange={(event, newValue) => setTabValue(newValue)}
+          onChange={(_event, newValue) => setTabValue(newValue)}
           textColor="inherit"
           indicatorColor="primary"
           sx={{

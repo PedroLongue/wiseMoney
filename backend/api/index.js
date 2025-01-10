@@ -17,7 +17,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(
   cors({
     credentials: true, // Permite cookies e headers autenticados
-    origin: ["http://localhost:3000", "http://localhost:5173"], // Lista de origens permitidas
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://wise-money-front-end-git-main-pedrolongues-projects.vercel.app/",
+      "https://wise-money-blond.vercel.app",
+    ], // Lista de origens permitidas
   })
 );
 

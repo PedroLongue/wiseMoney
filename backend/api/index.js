@@ -20,8 +20,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost:5173",
-      "https://wise-money-front-end-git-main-pedrolongues-projects.vercel.app/",
-      "https://wise-money-blond.vercel.app",
+      "https://wise-money-front-end-git-main-pedrolongues-projects.vercel.app"
     ], // Lista de origens permitidas
   })
 );

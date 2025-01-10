@@ -4,6 +4,7 @@ import { HeaderContainer } from "./styles";
 import { AuthContext } from "../../contexts/auth";
 import Button from "../../components/Button";
 import Divider from "@mui/material/Divider";
+import { Avatar } from "@mui/material";
 
 const Header = () => {
   const { signed, singOut, currentUser } = useContext(AuthContext);
@@ -19,10 +20,20 @@ const Header = () => {
       <HeaderContainer>
         <img src={WiseMoneyLogo} alt="WiseMoney Logo" />
         {signed && currentUser && (
-          <div>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Avatar
+              alt={currentUser.name}
+              src={""}
+              sx={{ marginRight: "10px", bgcolor: "#fff", color: "#15b858" }}
+            >
+              {currentUser.name
+                .split(" ")
+                .map((n) => n[0].toUpperCase())
+                .join("")}
+            </Avatar>
             <span style={{ color: "#fff", marginRight: "10px" }}>
               Olá, {currentUser.name.split(" ").shift()}
-            </span>{" "}
+            </span>
             <Button text="SAIR" onClick={handleLogout} />
           </div>
         )}

@@ -2,7 +2,7 @@
 require("dotenv").config();
 const express = require("express");
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocs = require("./swagger"); // Importa a configuração do Swagger
+const swaggerDocs = require("../swagger.js"); // Importa a configuração do Swagger
 const cors = require("cors");
 
 const port = process.env.PORT;
@@ -28,12 +28,12 @@ app.options("*", cors());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 //routes
-const router = require("./routes/Router.js");
+const router = require("../routes/Router.js");
 
 app.use(router);
 
 //DB connextion
-require("./config/db.js");
+require("../config/db.js");
 
 app.listen(port, () => {
   console.log(`rodando na porta ${port}`);

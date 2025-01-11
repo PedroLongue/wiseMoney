@@ -64,6 +64,8 @@ const login = async (req, res) => {
 
   if (!checkPassword) return res.status(422).json({ msg: "Senha inválida!" });
 
+  console.log("secret: ", process.env.secret);
+  console.log("Início do login - corpo recebido:", req.body);
   try {
     const secret = process.env.secret;
     const token = jwt.sign(

@@ -49,29 +49,22 @@ const register = async (req, res) => {
 
 // Login User
 const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email) return res.status(422).json({ msg: "O email é obrigatório!" });
+  if (!password) return res.status(422).json({ msg: "A senha é obrigatória!" });
+
+  // check if user exists
+  const user = await User.findOne({ email: email });
+
+  if (!user) return res.status(404).json({ msg: "Usuário não encontrado!" });
+
+  // check if password match
+  const checkPassword = await bcrypt.compare(password, user.password);
+
+  if (!checkPassword) return res.status(422).json({ msg: "Senha inválida!" });
+
   try {
-    console.log("Estado da conexão MongoDB:", mongoose.connection.readyState);
-
-    const { email, password } = req.body;
-
-    if (!email) return res.status(422).json({ msg: "O email é obrigatório!" });
-    if (!password)
-      return res.status(422).json({ msg: "A senha é obrigatória!" });
-
-    // check if user exists
-    const user = await User.findOne({ email: email });
-
-    console.log("user: ", user);
-
-    if (!user) return res.status(404).json({ msg: "Usuário não encontrado!" });
-
-    // check if password match
-    const checkPassword = await bcrypt.compare(password, user.password);
-
-    if (!checkPassword) return res.status(422).json({ msg: "Senha inválida!" });
-
-    console.log("secret: ", process.env.secret);
-    console.log("Início do login - corpo recebido:", req.body);
     const secret = process.env.secret;
     const token = jwt.sign(
       {
@@ -88,7 +81,7 @@ const login = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      msg: "Aconteceu um erro no servidor, tente novamente mais tarde!",
+      msg: "Acontecey um erro no servidor, tente novamente mais tarde!",
     });
   }
 };

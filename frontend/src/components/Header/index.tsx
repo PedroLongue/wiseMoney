@@ -37,7 +37,7 @@ const Header = () => {
               >
                 {currentUser.name
                   .split(" ")
-                  .map((n) => n[0].toUpperCase())
+                  .map((n) => n[0]?.toUpperCase())
                   .join("")}
               </Avatar>
               <span style={{ color: "#fff", marginRight: "10px" }}>

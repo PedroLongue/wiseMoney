@@ -66,6 +66,7 @@ const login = async (req, res) => {
 
   try {
     const secret = process.env.secret;
+    console.log({ secret })
     const token = jwt.sign(
       {
         id: user._id,
@@ -79,9 +80,9 @@ const login = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.log(error);
+    console.log("error: ",error);
     res.status(500).json({
-      msg: "Acontecey um erro no servidor, tente novamente mais tarde!",
+      msg: "Aconteceu um erro no servidor, tente novamente mais tarde!",
     });
   }
 };

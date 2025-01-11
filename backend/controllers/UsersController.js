@@ -57,6 +57,8 @@ const login = async (req, res) => {
   // check if user exists
   const user = await User.findOne({ email: email });
 
+  console.log("user: ", user)
+
   if (!user) return res.status(404).json({ msg: "Usuário não encontrado!" });
 
   // check if password match
@@ -83,7 +85,7 @@ const login = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({
-      msg: "Acontecey um erro no servidor, tente novamente mais tarde!",
+      msg: "Aconteceu um erro no servidor, tente novamente mais tarde!",
     });
   }
 };

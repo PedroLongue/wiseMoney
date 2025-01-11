@@ -62,12 +62,12 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 800,
+          width: { xs: "90%", sm: "600px", md: "800px" }, 
           bgcolor: "background.paper",
           background: "#101813",
           border: "2px solid #000",
           boxShadow: 24,
-          p: 4,
+          p: { xs: 2, sm: 4 }, 
           borderRadius: 2,
         }}
       >
@@ -92,7 +92,7 @@ const ExpenseModal: React.FC<ExpenseModalProps> = ({
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: "20px",
+            gap: { xs: "10px", sm: "20px" }, 
             margin: "20px 0px",
           }}
         >

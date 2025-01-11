@@ -85,14 +85,14 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
             color="primary"
             sx={{
               "& .MuiPaginationItem-root": {
-                color: "#fff",
+                color: "#fff", // Cor padrão dos itens de paginação
               },
-              "& .Mui-selected": {
-                color: "#15b858",
-                backgroundColor: "transparent",
+              "& .MuiPaginationItem-root.Mui-selected": {
+                color: "#fff", // Cor do texto no item selecionado
+                backgroundColor: "#15b858", // Cor de fundo do item selecionado
               },
               "& .MuiPaginationItem-root:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                backgroundColor: "#15b858", // Cor de fundo ao passar o mouse
               },
             }}
           />
